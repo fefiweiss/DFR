@@ -1,0 +1,23 @@
+{
+    "title": "Topics in <em>sdasd<\/em>",
+    "meta_info": "This site is the working demo for <a href=\"http://agoldst.github.io/dfr-browser\">dfr-browser</a>, a browsing interface for topic models of journal articles or other text.",
+    "VIS": {
+        "condition": {
+            "type": "time",
+            "spec": {
+                "unit": "year",
+                "n": 1
+            }
+        },
+        "bib_sort": {
+            "major": "year",
+            "minor": "alpha"
+        },
+        "model_view": {
+            "plot": {
+                "words": 6,
+                "size_range": [6, 14]
+            } 
+        }
+    }
+}
