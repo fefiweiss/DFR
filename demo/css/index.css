@@ -216,6 +216,27 @@ text.topic_name.merged_topic_sep {
     stroke: rgba(0,0,0,0.05);
 }
 
+.topic_select {
+    fill: rgb(51,153,255);
+    stroke: rgba(51,153,255,0.25);
+}
+
+.topic_select:hover {
+    fill: rgba(51,153,255,0.9);
+}
+
+.topic_select ~ text.topic_name { 
+    display: none;
+}
+
+.topic_select:hover ~ text.topic_name {
+    display: inherit;
+}
+
+.topic_select:hover ~ text.topic_word {
+    fill: rgba(0,0,0,0.05);
+    stroke: rgba(0,0,0,0.05);
+}
 
 /* model_view_list */
 

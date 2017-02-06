@@ -49,12 +49,9 @@ view.topic.corr = function (param) {
     svg = view.plot_svg("#topic_plot_corr", spec);
     
     console.log("topico select " + select);
-   // console.log(VIS.model_view.plot);
     topics.forEach(function (p){
-        console.log("topic " + JSON.stringify(p));
         sums.push(p.total);
     });
-    console.log("sums " + sums);
     total = d3.sum(sums);
     circle_radius = Math.floor(
         spec.w /
@@ -82,8 +79,6 @@ view.topic.corr = function (param) {
 
     domain_x = d3.extent(topics, function (d) {  return d.x; });
     domain_y = d3.extent(topics, function (d) { return d.y; });
-   // console.log("spec" + JSON.stringify(spec));
-   // console.log("range_padding" + range_padding);
 
     scale_x = d3.scale.linear()
         .domain(domain_x)
@@ -104,9 +99,6 @@ view.topic.corr = function (param) {
     gs = svg.selectAll("g")
         .data(topics, function (p) { return p.t; });
 
-    //asd = svg.selectAll("g");
-    //console.log(asd[0].parentNode);
-
     gs_enter = gs.enter().append("g");
     gs.exit().remove();
 
@@ -121,71 +113,17 @@ view.topic.corr = function (param) {
     gs_enter.append("circle")
             .attr("cx", 0)
             .attr("cy", 0)
-            .classed("topic_cloud", true)
+            .attr("class",function (w) {
+                if (w.t == select){
+                    return "topic_select";
+                }
+                else{
+                    return "topic_cloud";
+                }
+            })
             .attr("stroke-width", function (p) {
                 return scale_stroke(p.total);
-            })
-         /*   .on("click", function (p) {
-                if (!d3.event.shiftKey) {
-                    view.dfb().set_view(view.topic.hash(p.t));
-                }
-            })
-            .on("mouseover", function (p) {
-                gs.sort(function (a, b) {
-                    // to bring the hovered circle to front, draw it last
-                    // by reordering all the gs
-                    if (a.t === b.t) {
-                        return 0;
-                    }
-
-                    if (a.t === p.t) {
-                        return 1;
-                    }
-
-                    if (b.t === p.t) {
-                        return -1;
-                    }
-
-                    // otherwise
-                    return d3.ascending(a.t, b.t);
-                })
-                    .order();
-            })
-            .on("mouseout",function() {
-                gs.sort(function (a, b) {
-                        return d3.ascending(a.t, b.t);
-                    })
-                    .order();
-            })*/;
-
-/*    words = gs.selectAll("text.topic_word")
-        .data(function (p) {
-            var max_wt = p.words[0].weight,
-                wds = p.words.map(function (w) {
-                    return {
-                        text: w.word,
-                        size: Math.floor(scale_size(w.weight / max_wt)),
-                        t: p.t
-                    };
-                }),
-                up = 0, down = 0, toggle = false, i;
-
-            for (i = 0; i < wds.length; i += 1, toggle = !toggle) {
-                if (toggle) {
-                    wds[i].y = up;
-                    up -= wds[i].size;
-                } else {
-                    down += wds[i].size;
-                    wds[i].y = down;
-                }
-                if (up - cloud_size / 2 < wds[i].size
-                        && down > cloud_size / 2) {
-                    break;
-                }
-            }
-            console.log(wds.slice(0,i));
-            return wds.slice(0, i);
-        }); */
+            });
 
     words = gs.selectAll("text.topic_word")
         .data(function (p) {
@@ -198,8 +136,6 @@ view.topic.corr = function (param) {
             return wds;
         });
 
-    console.log(words);
-
     words.enter().append("text").classed("topic_word", true)
         .attr("clip-path", function (w) {
             return "url(#" + "clip_circ" + w.t;
@@ -207,7 +143,6 @@ view.topic.corr = function (param) {
         .style("font-size", "1px"); // additional words start tiny then grow
 
     words.text(function (wd) {
-            //console.log(wd.text);
             return wd.text;
         })
         .attr("x", 0)
@@ -230,7 +165,7 @@ view.topic.corr = function (param) {
         .enter().append("text").classed("topic_name", true)
         .attr("x", 0)
         .attr("y", function (w) { return w.y; })
-        .text(function (w) { /*console.log("name: " + JSON.stringify(w.w));*/ return w.w })
+        .text(function (w) { return w.w })
         .style("font-size", VIS.model_view.plot.name_size + "px")
         .classed("merged_topic_sep", function (w) {
             return w.w === "or";
@@ -246,6 +181,14 @@ view.topic.corr = function (param) {
         .duration(1000)
         .attr("transform", translation)
         .selectAll("circle")
+        .attr("class",function (w) {
+                if (w.t == select){
+                    return "topic_select";
+                }
+                else{
+                    return "topic_cloud";
+                }
+            })
         .attr("r", function (p) {
             //console.log(sums);
                 //console.log("p" + JSON.stringify(p));
@@ -258,6 +201,14 @@ view.topic.corr = function (param) {
         .duration(0)
         .attr("transform", translation)
         .selectAll("circle")
+        .attr("class",function (w) {
+                if (w.t == select){
+                    return "topic_select";
+                }
+                else{
+                    return "topic_cloud";
+                }
+            })
         .attr("r", function (p) {
                 //console.log("radio: " + 10000 * d3.format(".5f")(sums[p.t] / total));
                 return 1000 * d3.format(".5f")(sums[p.t] / total);
@@ -304,7 +255,7 @@ view.topic.corr = function (param) {
         });
 
     // zoom reset button
-    d3.select("button#reset_zoom")
+    d3.select("button#reset_zoom_topic")
         .on("click", function () {
             VIS.zoom_transition = true;
             zoom.translate([0, 0])

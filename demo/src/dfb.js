@@ -80,7 +80,7 @@ my.views.set("topic", function (t_user, y) {
     });
 
     //topic correlations
-    console.log(my.m.topic_label(t));
+   // console.log(my.m.topic_label(t));
     console.log(t); //topico i-esimo menos 1
 
     d3.selectAll(".model_view_scaled").classed("hidden", false);
@@ -88,7 +88,7 @@ my.views.set("topic", function (t_user, y) {
 
     console.log("topic correlations");
     d3.select("#topic_correlations").classed("hidden", false);
-    topic_corr_plot(t+1);
+    topic_corr_plot(t);
     d3.select("#topic_plot_corr").classed("hidden", false);
 
     // topic word subview
@@ -456,7 +456,7 @@ model_view_list = function (sort, dir) {
     my.m.topic_total(undefined, function (sums) {
         //console.log("fueraa " + JSON.stringify(sums));
         my.m.topic_conditional(undefined, my.condition, function (data) {
-            console.log(JSON.stringify(sums));
+           // console.log(JSON.stringify(sums));
             view.calculating("#model_view_list", false);
             view.model.list({
                 data: data,
