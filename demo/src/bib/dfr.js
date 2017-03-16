@@ -165,47 +165,50 @@ bib.dfr = function (spec) {
     };
     that.doc_author = doc_author;
 
-    // override inherited citation
+     // override inherited citation
     that.citation = function (doc) {
-        var s = doc_author(doc.authors),
-            title;
-
+         //var s = doc_author(doc.authors);
+         var title; 
         // don't duplicate trailing period on middle initial etc.
-        s = s.replace(/\.?$/, ". ");
+        //s = s.replace(/\.?$/, ". ");
         // double quotation marks in title to single
         // based on https://gist.github.com/drdrang/705071
+        
+    
         title = doc.title.replace(/“/g,'‘')
             .replace(/”/g,'’')
             .replace(/(^|[-\u2014/(\[{\u2018\s])"/g, "$1‘") // opening "
             .replace(/"/g,'’') // which leaves closing "
             .replace(/'/g,'’')
             .replace(/ <br><\/br>/g,'. ');
-        s += '“' + title + '.”';
+        
+        
+        var s = '“' + title + ' .”';
         s = s.replace(/’\./g,".’"); // fix up ’.” situations
 
-        s += " <em>" + doc.journal + "</em> ";
-        s += doc.volume;
-        if (doc.issue) {
-            s += ", no. " + doc.issue;
-        }
+
 
         // JSTOR supplies UTC dates
-        s += " (" + d3.time.format.utc("%B %Y")(doc.date) + "): ";
+        var date = " (" + d3.time.format.utc("%B %Y")(doc.date) + "): ";
 
-        s += doc.pagerange + ".";
+        s += date;
+  //      console.log(s)
+//        console.log("holaaa")
+       
+        //console.log(doc.date)
+        //s += doc.pagerange + ".";
 
-        s = s.replace(/\.\./g, ".");
-        s = s.replace(/_/g, ",");
-        s = s.replace(/\t/g, "");
+        //s = s.replace(/\.\./g, ".");
+        //s = s.replace(/_/g, ",");
+        //s = s.replace(/\t/g, "");
 
+        
         return s;
     };
 
     // provide url method
     that.url = function (doc) {
-        return "http://www.jstor.org"
-            + "/stable/"
-            + doc.doi;
+        return  doc.doi;
     };
 
     return that;

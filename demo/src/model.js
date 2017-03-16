@@ -16,6 +16,9 @@ model = function (spec) {
         n_docs,
         has_dt,
         tw,
+        pl,
+        docs_polarity,
+        dpl,
         n,
         n_top_words,
         total_tokens,
@@ -35,6 +38,8 @@ model = function (spec) {
         topic_label,
         set_dt, // methods for loading model data from strings 
         set_tw,
+        set_pl, //polaridad por palabra
+        set_dpl,  //polaridad por documento
         set_meta,
         doc_category,
         set_topic_scaled;
@@ -98,6 +103,43 @@ model = function (spec) {
         return my.tw[t].get(word);
     };
     that.tw = tw;
+
+    // access top key words per topic
+    pl = function (t, word) {
+        if (!my.pl) {
+            return undefined;
+        }
+
+        // pl() for the whole list of hashes
+        if (t === undefined) {
+            return my.pl;
+        }
+
+        // pl(t) for a particular topic
+        if (word === undefined) {
+            return my.pl[t];
+        }
+
+        // pl(t, word) for the weight of word in topic t
+        return my.pl[t].get(word);
+    };
+    that.pl = pl;
+
+    // access polaridad per documento
+    dpl = function (d, pol) {
+        if (!my.dpl) {
+            return undefined;
+        }
+
+        // pl(t) for a particular topic
+        if (pol === undefined && d !== undefined) {
+            return my.dpl[d-1].get(d);
+        }
+
+        // pl(t, word) for the weight of word in topic t
+        return my.dpl;
+    };
+    that.dpl = dpl;
 
     // number of topics
     n = function () {
@@ -252,13 +294,22 @@ model = function (spec) {
     };
     that.topic_conditional = topic_conditional;
 
+    docs_polarity = function (t, n, callback) {
+        my.worker.callback("docs_polarity/" + t + "/" + n, callback);
+        my.worker.postMessage({
+            what: "docs_polarity",
+            topics: t,
+            n: n
+        });
+    };
+    that.docs_polarity = docs_polarity;
+
     // Get n top documents for topic t. Uses a naive document ranking,
     // by the proportion of words assigned to t, which does *not*
     // necessarily give the docs where t is most salient
     topic_docs = function (t, n, callback) {
         // brute force solution for top n docs within a category:
         // rank all of them, then take the top n
-
         my.worker.callback("topic_docs/" + t + "/" + n, callback);
         my.worker.postMessage({
             what: "topic_docs",
@@ -394,6 +445,27 @@ model = function (spec) {
     };
     that.set_tw = set_tw;
 
+    set_pl = function (tw_s) {
+        var parsed;
+
+        if (typeof tw_s !== 'string') {
+            return;
+        }
+
+        parsed = JSON.parse(tw_s);
+        my.pl = parsed.pl.map(function (topic) {
+            var result = d3.map();
+            topic.words.map(function (w, j) {
+                result.set(w, topic.polarity[j]);
+            });
+            return result;
+        });
+        if (!my.n) {
+            my.n = my.pl.length;
+        }
+    };
+    that.set_pl = set_pl;
+
     // load dt from a string of JSON
     // callback should take one parameter, a Boolean indicating success
     set_dt = function (dt_s, callback) {
@@ -412,9 +484,25 @@ model = function (spec) {
     };
     that.set_dt = set_dt;
 
+    set_dpl = function (dpl_s, callback) {
+        var parsed;
+
+        if (typeof dpl_s !== 'string') {
+            return;
+        }
+
+        parsed = JSON.parse(dpl_s);
+        my.dpl = parsed.doc_pl.map(function (docs) {
+            var result = d3.map();
+            result.set(docs.doc, docs.polarity);
+            
+            return result;
+        });
+    };
+    that.set_dpl = set_dpl;
+
     set_meta = function (meta) {
         my.meta = meta;
-
         // cache metadata variable information for each doc
         meta.conditionals().forEach(doc_category);
     };

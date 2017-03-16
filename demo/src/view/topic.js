@@ -20,14 +20,14 @@ view.topic.remark = function (p) {
 
 //topic_correlations
 view.topic.corr = function (param) {
-    console.log("en view.topic.corr");
     var svg, cloud_size, circle_radius, range_padding,
         zoom_rect,
-        domain_x, domain_y,
-        scale_x, scale_y, scale_size, scale_stroke,
+        domain_x, domain_y, domain_pol,
+        scale_x, scale_y, scale_size, scale_stroke, scale_pol,
         gs, gs_enter,
         words,
         sums = [],
+        polarity = [], //polaridad por topico
         total,
         translation, zoom,
         topics = param.topics,
@@ -48,9 +48,9 @@ view.topic.corr = function (param) {
 
     svg = view.plot_svg("#topic_plot_corr", spec);
     
-    console.log("topico select " + select);
     topics.forEach(function (p){
         sums.push(p.total);
+        polarity.push(p.polarity);
     });
     total = d3.sum(sums);
     circle_radius = Math.floor(
@@ -79,6 +79,12 @@ view.topic.corr = function (param) {
 
     domain_x = d3.extent(topics, function (d) {  return d.x; });
     domain_y = d3.extent(topics, function (d) { return d.y; });
+
+    //normalizar la polaridad entre 0 y 1
+    domain_pol = d3.extent(topics, function (d) {  return d.polarity; });
+    scale_pol = d3.scale.linear()
+        .domain(domain_pol)
+        .range([0,1]);
 
     scale_x = d3.scale.linear()
         .domain(domain_x)
@@ -118,7 +124,17 @@ view.topic.corr = function (param) {
                     return "topic_select";
                 }
                 else{
-                    return "topic_cloud";
+                    return "topic_corr";
+                }
+            }) 
+            .attr("fill", function (w) {
+                var p;
+                p = scale_pol(w.polarity);
+                if (w.t == select){
+                    return "rgba(51,153,255," + p + ")";
+                }
+                else{
+                    return "rgba(244,67,57," + p + ")";
                 }
             })
             .attr("stroke-width", function (p) {
@@ -186,13 +202,20 @@ view.topic.corr = function (param) {
                     return "topic_select";
                 }
                 else{
-                    return "topic_cloud";
+                    return "topic_corr";
+                }
+            })
+        .attr("fill", function (w) {
+                var p;
+                p = scale_pol(w.polarity);
+                if (w.t == select){
+                    return "rgba(51,153,255," + p + ")";
+                }
+                else{
+                    return "rgba(244,67,57," + p + ")";
                 }
             })
         .attr("r", function (p) {
-            //console.log(sums);
-                //console.log("p" + JSON.stringify(p));
-                //console.log("radio: " + 10000 * d3.format(".5f")(sums[p.t] / total));
                 return 1000 * d3.format(".5f")(sums[p.t] / total);
             });  // aca cambiar el radio de los circulos
 
@@ -206,11 +229,20 @@ view.topic.corr = function (param) {
                     return "topic_select";
                 }
                 else{
-                    return "topic_cloud";
+                    return "topic_corr";
+                }
+            })
+        .attr("fill", function (w) {
+                var p;
+                p = scale_pol(w.polarity);
+                if (w.t == select){
+                    return "rgba(51,153,255," + p + ")";
+                }
+                else{
+                    return "rgba(244,67,57," + p + ")";
                 }
             })
         .attr("r", function (p) {
-                //console.log("radio: " + 10000 * d3.format(".5f")(sums[p.t] / total));
                 return 1000 * d3.format(".5f")(sums[p.t] / total);
             });  // aca tambien cambiar radio de circulos    
 
@@ -264,7 +296,6 @@ view.topic.corr = function (param) {
         });
 
     zoom(svg);
-    console.log("fin plot");
 };
 
 

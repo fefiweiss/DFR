@@ -195,7 +195,7 @@ text.topic_name.merged_topic_sep {
 }
 
 .topic_cloud {
-    fill: rgba(240,240,240,0.6);
+    fill: rgba(240,240,240,0.6); 
     stroke: rgba(200,200,200,0.6); 
 }
 
@@ -216,8 +216,30 @@ text.topic_name.merged_topic_sep {
     stroke: rgba(0,0,0,0.05);
 }
 
+.topic_corr {
+  /*  fill: rgba(240,240,240,0.6); */
+    stroke: rgba(200,200,200,0.6); 
+}
+
+.topic_corr:hover {
+    fill: rgba(51,153,255,0.9);
+}
+
+.topic_corr ~ text.topic_name {
+    display: none;
+}
+
+.topic_corr:hover ~ text.topic_name {
+    display: inherit;
+}
+
+.topic_corr:hover ~ text.topic_word {
+    fill: rgba(0,0,0,0.05);
+    stroke: rgba(0,0,0,0.05);
+}
+
 .topic_select {
-    fill: rgb(51,153,255);
+ /*   fill: rgb(51,153,255);*/
     stroke: rgba(51,153,255,0.25);
 }
 
@@ -236,6 +258,18 @@ text.topic_name.merged_topic_sep {
 .topic_select:hover ~ text.topic_word {
     fill: rgba(0,0,0,0.05);
     stroke: rgba(0,0,0,0.05);
+}
+
+#grad1 {
+    height: 250px;
+    width: 20px;
+    background: linear-gradient(to top, rgba(255,0,0,0), rgba(255,0,0,1)); /* Standard syntax (must be last) */
+    padding: 0 10px;
+}
+
+.center {
+    padding: 150px 0;
+
 }
 
 /* model_view_list */

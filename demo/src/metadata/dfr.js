@@ -41,22 +41,19 @@ metadata.dfr = function (spec) {
             // id,title,author,journal,volume,issue,pubdate,pagerange
 
             result = {
-                doi: d[0].trim(), // id
+                date: new Date(d[0].trim()), // pubdate (UTC)
                 title: d[1].trim(),
-                authors: d[2].trim(),
-                journal: d[3].trim(),
-                volume: d[4].trim(),
-                issue: d[5].trim(),
-                date: new Date(d[6].trim()), // pubdate (UTC)
-                pagerange: d[7].trim()
-                    .replace(/^p?p\. /, "")
-                    .replace(/-/g, "–")
+                category : d[2].trim(),
+                doi: d[3].trim(), // id
+                //authors: d[2].trim(),
+                //journal: d[3].trim(),
+                //volume: d[4].trim(),
+                //issue: d[5].trim(),
+                
+                //pagerange: d[7].trim().replace(/^p?p\. /, "").replace(/-/g, "–")
             };
             // now add extra columns
-            d.slice(8, d.length).forEach(function (x, i) {
-                result[my.extra_fields[i] || "X" + String(i)] = x.trim();
-            });
-
+            
             return result;
         });
     };

@@ -61,9 +61,6 @@ view.model.list = function (p) {
         });
         trs.append("td")
             .text(function (t) {
-                console.log("typeof " + typeof(p.sums));
-                console.log("sums " + p.sums);
-                //console.log("proportions: " + VIS.percent_format(p.sums[t] / total));
                 return VIS.percent_format(p.sums[t] / total);
             });
 

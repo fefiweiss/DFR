@@ -40,8 +40,10 @@ var dfb = function (spec) {
 
 my.views.set("topic", function (t_user, y) {
     var words,
+        topics,
         t = +t_user - 1, // t_user is 1-based topic index, t is 0-based
-        view_top_docs;
+        view_top_docs,
+        docs_polari;
 
     if (!my.m.meta() || !my.m.has_dt() || !my.m.tw()) {
         // not ready yet; show loading message
@@ -80,13 +82,9 @@ my.views.set("topic", function (t_user, y) {
     });
 
     //topic correlations
-   // console.log(my.m.topic_label(t));
-    console.log(t); //topico i-esimo menos 1
-
     d3.selectAll(".model_view_scaled").classed("hidden", false);
     d3.selectAll(".model_view_conditional").classed("hidden", false);
 
-    console.log("topic correlations");
     d3.select("#topic_correlations").classed("hidden", false);
     topic_corr_plot(t);
     d3.select("#topic_plot_corr").classed("hidden", false);
@@ -105,7 +103,6 @@ my.views.set("topic", function (t_user, y) {
     if (!view.updating() && !view.dirty("topic/conditional")) {
         d3.select("#topic_plot").classed("invisible", true);
     }
-
     my.m.topic_conditional(t, my.condition, function (data) {
         view.topic.conditional({
             t: t,
@@ -122,6 +119,9 @@ my.views.set("topic", function (t_user, y) {
     view.calculating("#topic_docs", true);
     // create callback for showing top docs; used in if/else following
     view_top_docs = function (docs) {
+      /*  docs_polarity = docs.map( function (d) {
+            return d.doc;
+        });*/
         view.calculating("#topic_docs", false);
         view.topic.docs({
             t: t,
@@ -271,7 +271,6 @@ my.views.set("doc", function (d) {
         });
 
         view.calculating("#doc_view", false);
-
         view.doc({
             topics: topics,
             citation: my.bib.citation(my.m.meta(doc)),
@@ -454,9 +453,7 @@ model_view_list = function (sort, dir) {
     view.calculating("#model_view_list", true);
 
     my.m.topic_total(undefined, function (sums) {
-        //console.log("fueraa " + JSON.stringify(sums));
         my.m.topic_conditional(undefined, my.condition, function (data) {
-           // console.log(JSON.stringify(sums));
             view.calculating("#model_view_list", false);
             view.model.list({
                 data: data,
@@ -478,33 +475,44 @@ model_view_list = function (sort, dir) {
     return true;
 };
 
+
 topic_corr_plot = function (topic_selected) {
-    my.m.topic_total(undefined, function (totals) {
-        console.log("topic_corr_plot " + topic_selected);
-        var topics = d3.range(my.m.n());
+    my.m.topic_total(undefined, function (totals) {   
+        var topics = d3.range(my.m.n()),
+            docs_polari,
+            polarity;
         if (!VIS.show_hidden_topics) {
             topics = topics.filter(function (t) { return !VIS.topic_hidden[t]; });
         }
-        /*console.log(my.m);
-        //console.log(VIS);
-        console.log("topicos");
-        console.log(topics);
-        console.log(totals);*/
-        view.topic.corr({
-            type: "scaled",
-            select: topic_selected,
-            topics: topics.map(function (t) {
-                //console.log("totals[t]" + totals[t]);
-                console.log(topic_selected);
-                return {
-                    t: t,
-                    words: my.m.topic_words(t, VIS.model_view.plot.words),
-                    scaled: my.m.topic_scaled(t),
-                    total: totals[t],
-                    label: my.m.topic_label(t)
-                };
-            })
-        });
+
+        docs_polari = function (pol_topics) {
+            var docs_pol,
+                pol;
+            docs_pol = pol_topics.map( function (t) {
+                pol = 0;
+                t.map( function (d) {
+                    pol += my.m.dpl(d.doc) * d.weight;
+                })
+                return pol;
+            });
+            view.topic.corr({
+                type: "scaled",
+                select: topic_selected,
+                topics: topics.map(function (t) {
+                    return {
+                        t: t,
+                        words: my.m.topic_words(t, VIS.model_view.plot.words),
+                        scaled: my.m.topic_scaled(t),
+                        total: totals[t],
+                        label: my.m.topic_label(t),
+                        polarity: docs_pol[t],
+                        polarity_words: my.m.pl()[t]
+                    };
+                })
+            });
+            
+        };
+        return my.m.docs_polarity(topics, VIS.topic_view.docs, docs_polari); 
     });
 
     return true;
@@ -769,7 +777,6 @@ load = function () {
         // really the end of the world
         if (typeof info_s === 'string') {
             my.m.info(JSON.parse(info_s));
-            //console.log(my.m.info());
             // finish initializing VIS by loading any preferences
             // stashed in model info
 
@@ -871,6 +878,24 @@ load = function () {
                 refresh();
             } else {
                 view.error("Unable to load topic words from " + VIS.files.tw);
+            }
+        });
+        load_data(VIS.files.pl, function (error, pl_s) {
+            if (typeof pl_s === 'string') {
+                my.m.set_pl(pl_s);
+                //arma diccionario con llave palabra y valor polaridad
+                refresh();
+            } else {
+                view.error("Unable to load topic words from " + VIS.files.pl);
+            }
+        });
+        load_data(VIS.files.dpl, function (error, dpl_s) {
+            if (typeof dpl_s === 'string') { 
+                my.m.set_dpl(dpl_s);
+                //arma diccionario con llave: documento, valor:  polaridad
+                refresh();
+            } else {
+                view.error("Unable to load topic words from " + VIS.files.dpl);
             }
         });
         load_data(VIS.files.topic_scaled, function (error, s) {

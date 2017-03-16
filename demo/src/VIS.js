@@ -12,6 +12,8 @@ var VIS = {
         meta: "data/meta.csv.zip",  // remove .zip to use uncompressed data
         dt: "data/dt.json.zip",     // (name the actual file accordingly)
         tw: "data/tw.json",
+        pl: "data/pl.json",
+        dpl: "data/doc_pl.json",    // polaridad por documentos
         topic_scaled: "data/topic_scaled.csv"
     },
     aliases: {                  // simple aliasing in URLs:

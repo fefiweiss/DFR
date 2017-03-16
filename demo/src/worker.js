@@ -10,6 +10,7 @@ var my = {
     doc_topics_matrix,
     total_tokens,
     topic_docs,
+    docs_polarity, // polaridad por documento
     doc_topics,
     topic_conditional,
     conditional_total,
@@ -124,6 +125,17 @@ total_tokens = function () {
     return result;
 };
 
+docs_polarity = function (topics, n){
+    var t,
+        result = [];
+
+    for (t = 0; t < topics.length; t += 1) {
+        result[t] = topic_docs_conditional(t, undefined, undefined, n);
+    };
+
+    return result;
+};
+
 topic_docs = function (t, n) {
     return topic_docs_conditional(t, undefined, undefined, n);
 };
@@ -131,7 +143,6 @@ topic_docs = function (t, n) {
 
 doc_topics = function (d, n) {
     var topics = [ ], t, x;
-
     for (t = 0; t < my.dt.n; t += 1) {
         x = my.dt.get(d, t);
         if (x > 0) {
@@ -297,7 +308,12 @@ onmessage = function (e) {
             what: "total_tokens",
             result: total_tokens()
         });
-    } else if (e.data.what === "topic_docs") {
+    }else if (e.data.what === "docs_polarity") {
+        postMessage({
+            what: "docs_polarity/" + e.data.topics + "/" + e.data.n,
+            result: docs_polarity(e.data.topics, e.data.n)
+        }); 
+    }else if (e.data.what === "topic_docs") {
         postMessage({
             what: "topic_docs/" + e.data.t + "/" + e.data.n,
             result: topic_docs(e.data.t, e.data.n)
