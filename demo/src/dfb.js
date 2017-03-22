@@ -43,6 +43,7 @@ my.views.set("topic", function (t_user, y) {
         topics,
         t = +t_user - 1, // t_user is 1-based topic index, t is 0-based
         view_top_docs,
+        words_pol,
         docs_polari;
 
     if (!my.m.meta() || !my.m.has_dt() || !my.m.tw()) {
@@ -60,6 +61,8 @@ my.views.set("topic", function (t_user, y) {
     }
 
     words = utils.shorten(my.m.topic_words(t), VIS.topic_view.words);
+    words_pol = utils.shorten(my.m.pl(t), VIS.topic_view.words);
+    console.log(words_pol);
 
     view.topic({
         t: t,
@@ -90,7 +93,15 @@ my.views.set("topic", function (t_user, y) {
     d3.select("#topic_plot_corr").classed("hidden", false);
 
     // topic word subview
-    view.topic.words(words);
+    view.topic.words(words, my.m.pl(t));
+  //  view.topic.words_pol(my.m.pl(t));
+   /* console.log("topic_words");
+    console.log(my.m.topic_words(t));
+    console.log("pl");
+    console.log(my.m.pl(t));
+    console.log(words_pol);*/
+    
+    //view.topic.words_pol(my.m.pl(t));
 
     // topic conditional barplot subview
 

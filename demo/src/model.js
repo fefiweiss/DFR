@@ -455,8 +455,8 @@ model = function (spec) {
         parsed = JSON.parse(tw_s);
         my.pl = parsed.pl.map(function (topic) {
             var result = d3.map();
-            topic.words.map(function (w, j) {
-                result.set(w, topic.polarity[j]);
+            result = topic.words.map(function (w, j) {
+                return {word: w, polarity: topic.polarity[j]};
             });
             return result;
         });

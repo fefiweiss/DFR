@@ -3,6 +3,10 @@ body {
     overflow-y: scroll;
 }
 
+.word {
+    margin-top: 20px;
+}
+
 .hidden {
     display: none;
 }

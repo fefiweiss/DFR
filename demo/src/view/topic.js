@@ -299,7 +299,9 @@ view.topic.corr = function (param) {
 };
 
 
-view.topic.words = function (words) {
+view.topic.words = function (words, words_pol) {
+    console.log(words);
+    console.log(words_pol);
     var trs_w;
 
     if (view.updating() && !view.dirty("topic/words")) {
@@ -331,6 +333,65 @@ view.topic.words = function (words) {
     });
 
     view.dirty("topic/words", false);
+
+    d3.select("button#words_polarity")
+        .on("click", function () {
+            console.log("holi");
+            view.topic.words_pol(words, words_pol);    
+            })
+        .text("Polarity");
+    d3.select("#top_word_table").text("Weight");
+};
+
+view.topic.words_pol = function (words, words_pol) {
+    console.log("words_pol");
+    console.log(words_pol);
+    var lis = words_pol;
+    var trs_w;
+    lis.sort(function (a, b) {
+        return d3.descending(a.polarity,b.polarity);
+    });
+    console.log("lis");
+    console.log(lis);
+
+    if (view.updating() && !view.dirty("topic/words")) {
+        return;
+    }
+
+    trs_w = d3.select("table#topic_words tbody")
+        .selectAll("tr")
+        .data(lis);
+
+    trs_w.enter().append("tr");
+    trs_w.exit().remove();
+
+    trs_w.on("click", function (w) {
+        view.dfb().set_view("/word/" + w.word);
+    });
+
+    // clear rows
+    trs_w.selectAll("td").remove();
+
+    trs_w.append("td").append("a")
+        .attr("href", function (w) {
+            return "#/word/" + w.word;
+        })
+        .text(function (w) { return w.word; });
+
+    view.append_weight_tds(trs_w, function (w) {
+        console.log("w");
+        console.log(w);
+        return w.polarity / lis[0].polarity;
+    });
+
+    view.dirty("topic/words", false);
+    d3.select("button#words_polarity")
+        .on("click", function () {
+            console.log("holi");
+            view.topic.words(words, lis);    
+            })
+        .text("Weight");
+    d3.select("#top_word_table").text("Polarity");
 };
 
 view.topic.docs = function (p) {

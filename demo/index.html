@@ -212,12 +212,20 @@
       </div>
       <div class="row">
         <div id="topic_words" class="col-md-3">
-          <h3 class="h-small">Top words</h3>
+          <div class="row">
+            <div class="pull-left" style="margin-left: 15px;">
+              <h3 class="h-small">Top words</h3>
+            </div>
+            <div class="pull-right">
+                <button class="btn btn-default word" type="button"
+                  id="words_polarity">Polarity</button>
+            </div>
+          </div>
           <table class="table table-condensed" id="topic_words">
             <thead>
               <tr>
                 <th>Word</th>
-                <th class="th-right">Weight</th>
+                <th class="th-right" id="top_word_table">Weight</th>
               </tr>
             </thead>
             <tbody>
